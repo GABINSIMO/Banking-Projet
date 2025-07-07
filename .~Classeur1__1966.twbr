@@ -19,6 +19,7 @@
     <_.fcp.VConnDownstreamExtractsWithWarnings.true...VConnDownstreamExtractsWithWarnings />
     <WindowsPersistSimpleIdentifiers />
     <WorksheetBackgroundTransparency />
+    <ZoneBackgroundTransparency />
   </document-format-change-manifest>
   <preferences>
     <preference name='ui.encoding.shelf.height' value='24' />
@@ -368,12 +369,19 @@
       <column caption='Self Employed' datatype='string' name='[self_employed]' role='dimension' type='nominal' />
       <column caption='Total Assets Value' datatype='integer' name='[total_assets_value]' role='measure' type='quantitative' />
       <column-instance column='[loan_status]' derivation='Count' name='[cnt:loan_status:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[loan_status]' derivation='None' name='[none:loan_status:nk]' pivot='key' type='nominal' />
       <column-instance column='[asset_to_loan_ratio]' derivation='Sum' name='[sum:asset_to_loan_ratio:qk]' pivot='key' type='quantitative' />
       <column-instance column='[debt_to_income_ratio]' derivation='Sum' name='[sum:debt_to_income_ratio:qk]' pivot='key' type='quantitative' />
       <column-instance column='[loan_term_years]' derivation='Sum' name='[sum:loan_term_years:qk]' pivot='key' type='quantitative' />
       <group caption='Action (Loan Status)' hidden='true' name='[Action (Loan Status)]' name-style='unqualified' user:auto-column='sheet_link'>
         <groupfilter function='crossjoin'>
           <groupfilter function='level-members' level='[loan_status]' />
+        </groupfilter>
+      </group>
+      <group caption='Action (Loan Status,Risk Category)' hidden='true' name='[Action (Loan Status,Risk Category)]' name-style='unqualified' user:auto-column='sheet_link'>
+        <groupfilter function='crossjoin'>
+          <groupfilter function='level-members' level='[loan_status]' />
+          <groupfilter function='level-members' level='[risk_category]' />
         </groupfilter>
       </group>
       <extract _.fcp.VConnDownstreamExtractsWithWarnings.true...user-specific='false' count='-1' enabled='true' object-id='' units='records'>
@@ -698,6 +706,14 @@
               <bucket>&quot;[federated.1vljvrc1vdqxg313fpevb08vrr1i].[sum:debt_to_income_ratio:qk]&quot;</bucket>
             </map>
           </encoding>
+          <encoding attr='color' field='[none:loan_status:nk]' type='palette'>
+            <map to='#4e79a7'>
+              <bucket>&quot; Approved&quot;</bucket>
+            </map>
+            <map to='#f28e2b'>
+              <bucket>&quot; Rejected&quot;</bucket>
+            </map>
+          </encoding>
         </style-rule>
       </style>
       <semantic-values>
@@ -780,9 +796,9 @@
         <param name='target' value='Dashbord 1' />
       </command>
     </action>
-    <action caption='Filtre 2 (généré)' name='[Action2_5E8E11817F4947C685052C58D62B0B6C]'>
+    <action caption='Filtre 2 (généré)' name='[Action2_BDED74B3059440139C6B1EC92B7ECC31]'>
       <activation auto-clear='true' type='on-select' />
-      <source dashboard='Dashbord 2' type='sheet' worksheet='Global Approval Rate' />
+      <source dashboard='Dashbord 2' type='sheet' worksheet='Approval Rate by Risk Category' />
       <command command='tsc:tsl-filter'>
         <param name='special-fields' value='all' />
         <param name='target' value='Dashbord 2' />
@@ -812,7 +828,7 @@
             <column-instance column='[loan_status_code]' derivation='Sum' name='[sum:loan_status_code:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
           <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status)]'>
-            <groupfilter function='member' level='[loan_status]' member='&quot; Rejected&quot;' user:ui-action-filter='[Action1_EDD47147222F456D85A7A1AE380A1037]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+            <groupfilter function='level-members' level='[loan_status]' user:ui-action-filter='[Action1_EDD47147222F456D85A7A1AE380A1037]' user:ui-enumeration='all' user:ui-marker='enumerate' />
           </filter>
           <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:risk_category:nk]'>
             <groupfilter function='level-members' level='[none:risk_category:nk]' />
@@ -935,6 +951,63 @@
       </table>
       <simple-id uuid='{69A1DE30-2459-404E-AE0E-B9A039667B62}' />
     </worksheet>
+    <worksheet name='Education'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontalignment='1' fontcolor='#000000' fontname='Benton Sans Book' fontsize='12'>Education by Status</run>
+            <run fontalignment='1'>Æ&#10;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='loan_applications_enriched' name='federated.1vljvrc1vdqxg313fpevb08vrr1i' />
+          </datasources>
+          <datasource-dependencies datasource='federated.1vljvrc1vdqxg313fpevb08vrr1i'>
+            <column-instance column='[loan_id]' derivation='Count' name='[cnt:loan_id:qk]' pivot='key' type='quantitative' />
+            <column caption='Education' datatype='string' name='[education]' role='dimension' type='nominal' />
+            <column caption='Loan Id' datatype='integer' name='[loan_id]' role='dimension' type='ordinal' />
+            <column caption='Loan Status' datatype='string' name='[loan_status]' role='dimension' type='nominal' />
+            <column-instance column='[education]' derivation='None' name='[none:education:nk]' pivot='key' type='nominal' />
+            <column-instance column='[loan_status]' derivation='None' name='[none:loan_status:nk]' pivot='key' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status)]'>
+            <groupfilter function='level-members' level='[loan_status]' user:ui-action-filter='[Action1_EDD47147222F456D85A7A1AE380A1037]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status)]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='display' class='0' field='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[cnt:loan_id:qk]' scope='cols' value='false' />
+          </style-rule>
+          <style-rule element='mark'>
+            <encoding attr='size-bar' field='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[cnt:loan_id:qk]' field-type='quantitative' max-size='1' min-size='0.005' type='centersize' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='display-field-labels' scope='cols' value='false' />
+          </style-rule>
+          <style-rule element='refline'>
+            <format attr='stroke-color' id='refline0' value='#000000' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+          </pane>
+        </panes>
+        <rows>([federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:education:nk] / [federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:loan_status:nk])</rows>
+        <cols>[federated.1vljvrc1vdqxg313fpevb08vrr1i].[cnt:loan_id:qk]</cols>
+      </table>
+      <simple-id uuid='{0D2A5556-A883-4015-9564-73BC43970302}' />
+    </worksheet>
     <worksheet name='Global Approval Rate'>
       <layout-options>
         <title>
@@ -956,15 +1029,22 @@
             <column-instance column='[risk_category]' derivation='None' name='[none:risk_category:nk]' pivot='key' type='nominal' />
             <column caption='Risk Category' datatype='string' name='[risk_category]' role='dimension' type='nominal' />
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:risk_category:nk]'>
-            <groupfilter function='union' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
-              <groupfilter function='member' level='[none:risk_category:nk]' member='&quot;High&quot;' />
-              <groupfilter function='member' level='[none:risk_category:nk]' member='&quot;Low&quot;' />
-              <groupfilter function='member' level='[none:risk_category:nk]' member='&quot;Medium&quot;' />
+          <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status,Risk Category)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action2_BDED74B3059440139C6B1EC92B7ECC31]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[loan_status]' member='&quot; Approved&quot;' />
+              <groupfilter function='member' level='[risk_category]' member='&quot;Medium&quot;' />
             </groupfilter>
+          </filter>
+          <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:loan_status:nk]'>
+            <groupfilter function='level-members' level='[none:loan_status:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:risk_category:nk]'>
+            <groupfilter function='level-members' level='[none:risk_category:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
           </filter>
           <slices>
             <column>[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:risk_category:nk]</column>
+            <column>[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:loan_status:nk]</column>
+            <column>[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status,Risk Category)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -1023,9 +1103,13 @@
             <column caption='Loan Term' datatype='integer' name='[loan_term]' role='measure' type='quantitative' />
             <column-instance column='[Calculation_5617255400985358338]' derivation='None' name='[none:Calculation_5617255400985358338:nk]' pivot='key' type='nominal' />
             <column-instance column='[loan_status]' derivation='None' name='[none:loan_status:nk]' pivot='key' type='nominal' />
+            <column caption='Risk Category' datatype='string' name='[risk_category]' role='dimension' type='nominal' />
           </datasource-dependencies>
-          <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status)]'>
-            <groupfilter function='member' level='[loan_status]' member='&quot; Rejected&quot;' user:ui-action-filter='[Action2_5E8E11817F4947C685052C58D62B0B6C]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          <filter class='categorical' column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status,Risk Category)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action2_BDED74B3059440139C6B1EC92B7ECC31]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate'>
+              <groupfilter function='member' level='[loan_status]' member='&quot; Approved&quot;' />
+              <groupfilter function='member' level='[risk_category]' member='&quot;Medium&quot;' />
+            </groupfilter>
           </filter>
           <manual-sort column='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:Calculation_5617255400985358338:nk]' direction='ASC'>
             <dictionary>
@@ -1035,7 +1119,7 @@
             </dictionary>
           </manual-sort>
           <slices>
-            <column>[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status)]</column>
+            <column>[federated.1vljvrc1vdqxg313fpevb08vrr1i].[Action (Loan Status,Risk Category)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -1092,9 +1176,9 @@
       <size sizing-mode='automatic' />
       <zones>
         <zone h='100000' id='4' type-v2='layout-basic' w='100000' x='0' y='0'>
-          <zone h='86101' id='14' param='horz' type-v2='layout-flow' w='98770' x='615' y='12763'>
-            <zone h='86101' id='5' type-v2='layout-basic' w='98770' x='615' y='12763'>
-              <zone h='42985' id='8' name='Approval Rate by Risk Category' w='49388' x='49997' y='12763'>
+          <zone h='86109' id='14' param='horz' type-v2='layout-flow' w='98770' x='615' y='12759'>
+            <zone h='86109' id='5' type-v2='layout-basic' w='98770' x='615' y='12759'>
+              <zone h='43121' id='9' name='Average Ratio by Status' w='98770' x='615' y='55747'>
                 <zone-style>
                   <format attr='border-color' value='#000000' />
                   <format attr='border-style' value='none' />
@@ -1102,7 +1186,7 @@
                   <format attr='margin' value='4' />
                 </zone-style>
               </zone>
-              <zone h='43116' id='9' name='Average Ratio by Status' w='98770' x='615' y='55748'>
+              <zone h='42988' id='12' name='Global Approval Rate' w='49382' x='615' y='12759'>
                 <zone-style>
                   <format attr='border-color' value='#000000' />
                   <format attr='border-style' value='none' />
@@ -1110,7 +1194,7 @@
                   <format attr='margin' value='4' />
                 </zone-style>
               </zone>
-              <zone h='42985' id='12' name='Global Approval Rate' w='49382' x='615' y='12763'>
+              <zone h='42988' id='16' name='Education' w='49388' x='49997' y='12759'>
                 <zone-style>
                   <format attr='border-color' value='#000000' />
                   <format attr='border-style' value='none' />
@@ -1120,7 +1204,7 @@
               </zone>
             </zone>
           </zone>
-          <zone forceUpdate='true' h='11627' id='15' type-v2='text' w='98770' x='615' y='1136'>
+          <zone forceUpdate='true' h='11627' id='15' type-v2='text' w='98770' x='615' y='1132'>
             <formatted-text>
               <run bold='true' fontalignment='1' fontcolor='#000000' fontname='Benton Sans Book' fontsize='15'>Bank Loan Analysis Overview</run>
             </formatted-text>
@@ -1164,27 +1248,49 @@
         </style-rule>
       </style>
       <size sizing-mode='automatic' />
+      <datasources>
+        <datasource caption='loan_applications_enriched' name='federated.1vljvrc1vdqxg313fpevb08vrr1i' />
+      </datasources>
+      <datasource-dependencies datasource='federated.1vljvrc1vdqxg313fpevb08vrr1i'>
+        <column caption='Loan Status' datatype='string' name='[loan_status]' role='dimension' type='nominal' />
+        <column-instance column='[loan_status]' derivation='None' name='[none:loan_status:nk]' pivot='key' type='nominal' />
+      </datasource-dependencies>
       <zones>
         <zone h='100000' id='4' type-v2='layout-basic' w='100000' x='0' y='0'>
-          <zone h='86099' id='14' param='horz' type-v2='layout-flow' w='98770' x='615' y='12765'>
-            <zone h='86099' id='5' type-v2='layout-basic' w='98770' x='615' y='12765'>
-              <zone h='42985' id='8' name='Approval Rate by Risk Category' w='49387' x='49998' y='12765'>
-                <zone-style>
-                  <format attr='border-color' value='#000000' />
-                  <format attr='border-style' value='none' />
-                  <format attr='border-width' value='0' />
-                  <format attr='margin' value='4' />
-                </zone-style>
+          <zone h='97736' id='19' param='horz' type-v2='layout-flow' w='98770' x='615' y='1132'>
+            <zone h='97736' id='17' type-v2='layout-basic' w='86472' x='615' y='1132'>
+              <zone h='86107' id='14' param='horz' type-v2='layout-flow' w='86472' x='615' y='12761'>
+                <zone h='86107' id='5' type-v2='layout-basic' w='86472' x='615' y='12761'>
+                  <zone h='42988' id='8' name='Approval Rate by Risk Category' w='43238' x='43849' y='12761'>
+                    <zone-style>
+                      <format attr='border-color' value='#000000' />
+                      <format attr='border-style' value='none' />
+                      <format attr='border-width' value='0' />
+                      <format attr='margin' value='4' />
+                    </zone-style>
+                  </zone>
+                  <zone h='42988' id='12' name='Global Approval Rate' w='43234' x='615' y='12761'>
+                    <zone-style>
+                      <format attr='border-color' value='#000000' />
+                      <format attr='border-style' value='none' />
+                      <format attr='border-width' value='0' />
+                      <format attr='margin' value='4' />
+                    </zone-style>
+                  </zone>
+                  <zone h='43119' id='16' name='Loan period' w='86472' x='615' y='55749'>
+                    <zone-style>
+                      <format attr='border-color' value='#000000' />
+                      <format attr='border-style' value='none' />
+                      <format attr='border-width' value='0' />
+                      <format attr='margin' value='4' />
+                    </zone-style>
+                  </zone>
+                </zone>
               </zone>
-              <zone h='42985' id='12' name='Global Approval Rate' w='49383' x='615' y='12765'>
-                <zone-style>
-                  <format attr='border-color' value='#000000' />
-                  <format attr='border-style' value='none' />
-                  <format attr='border-width' value='0' />
-                  <format attr='margin' value='4' />
-                </zone-style>
-              </zone>
-              <zone h='43114' id='16' name='Loan period' w='98770' x='615' y='55750'>
+              <zone forceUpdate='true' h='11629' id='15' type-v2='text' w='86472' x='615' y='1132'>
+                <formatted-text>
+                  <run bold='true' fontalignment='1' fontcolor='#000000' fontname='Benton Sans Book' fontsize='15'>Bank Loan Analysis Overview</run>
+                </formatted-text>
                 <zone-style>
                   <format attr='border-color' value='#000000' />
                   <format attr='border-style' value='none' />
@@ -1193,17 +1299,16 @@
                 </zone-style>
               </zone>
             </zone>
-          </zone>
-          <zone forceUpdate='true' h='11629' id='15' type-v2='text' w='98770' x='615' y='1136'>
-            <formatted-text>
-              <run bold='true' fontalignment='1' fontcolor='#000000' fontname='Benton Sans Book' fontsize='15'>Bank Loan Analysis Overview</run>
-            </formatted-text>
-            <zone-style>
-              <format attr='border-color' value='#000000' />
-              <format attr='border-style' value='none' />
-              <format attr='border-width' value='0' />
-              <format attr='margin' value='4' />
-            </zone-style>
+            <zone fixed-size='160' h='97736' id='18' is-fixed='true' param='vert' type-v2='layout-flow' w='12298' x='87087' y='1132'>
+              <zone h='12589' id='20' name='Global Approval Rate' param='[federated.1vljvrc1vdqxg313fpevb08vrr1i].[none:loan_status:nk]' type-v2='filter' values='database' w='12298' x='87087' y='1132'>
+                <zone-style>
+                  <format attr='border-color' value='#000000' />
+                  <format attr='border-style' value='none' />
+                  <format attr='border-width' value='0' />
+                  <format attr='margin' value='4' />
+                </zone-style>
+              </zone>
+            </zone>
           </zone>
           <zone-style>
             <format attr='border-color' value='#000000' />
@@ -1236,7 +1341,7 @@
       <size maxheight='860' maxwidth='650' minheight='560' minwidth='420' />
       <zones>
         <zone h='100000' id='4' type-v2='layout-basic' w='100000' x='0' y='0'>
-          <zone forceUpdate='true' h='45248' id='12' type-v2='text' w='97538' x='1231' y='33475'>
+          <zone forceUpdate='true' h='45252' id='12' type-v2='text' w='97538' x='1231' y='33473'>
             <formatted-text>
               <run>---- English&#10;</run>
               <run fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>Clients with a lower debt ratio or a better asset-to-loan ratio are more likely to be approved.</run>
@@ -1255,7 +1360,7 @@
               <format attr='margin' value='4' />
             </zone-style>
           </zone>
-          <zone forceUpdate='true' h='20142' id='14' type-v2='text' w='97538' x='1231' y='78723'>
+          <zone forceUpdate='true' h='20145' id='14' type-v2='text' w='97538' x='1231' y='78725'>
             <formatted-text>
               <run>---- English&#10;</run>
               <run fontcolor='#000000' fontname='Benton Sans Book' fontsize='11'>Long-term loans are the most common, but also frequently rejected </run>
@@ -1269,7 +1374,7 @@
               <format attr='margin' value='4' />
             </zone-style>
           </zone>
-          <zone forceUpdate='true' h='32340' id='15' type-v2='text' w='97538' x='1231' y='1135'>
+          <zone forceUpdate='true' h='32343' id='15' type-v2='text' w='97538' x='1231' y='1130'>
             <formatted-text>
               <run bold='true' fontalignment='1' fontname='Benton Sans Book' fontsize='18'>Summary/Resumé</run>
             </formatted-text>
@@ -1418,13 +1523,36 @@
       </cards>
       <simple-id uuid='{02CE4534-0BFB-48AE-B799-F1F821A20D47}' />
     </window>
-    <window class='dashboard' maximized='true' name='Dashbord 1'>
+    <window class='worksheet' name='Education'>
+      <cards>
+        <edge name='left'>
+          <strip size='170'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{B04759E8-4F05-4C78-B80B-DA961CE916BC}' />
+    </window>
+    <window class='dashboard' name='Dashbord 1'>
       <viewpoints>
-        <viewpoint name='Approval Rate by Risk Category'>
-          <zoom type='fit-height' />
-        </viewpoint>
         <viewpoint name='Average Ratio by Status'>
           <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Education'>
+          <zoom type='fit-height' />
         </viewpoint>
         <viewpoint name='Global Approval Rate'>
           <zoom type='fit-width' />
@@ -1433,7 +1561,7 @@
       <active id='12' />
       <simple-id uuid='{36129828-0268-4229-91FA-43A7F77B51F3}' />
     </window>
-    <window class='dashboard' name='Dashbord 2'>
+    <window class='dashboard' maximized='true' name='Dashbord 2'>
       <viewpoints>
         <viewpoint name='Approval Rate by Risk Category'>
           <zoom type='fit-height' />
@@ -1445,7 +1573,7 @@
           <zoom type='fit-height' />
         </viewpoint>
       </viewpoints>
-      <active id='12' />
+      <active id='8' />
       <simple-id uuid='{160E4F84-75A1-4AF3-8862-8D2628045083}' />
     </window>
     <window class='dashboard' name='Summary'>
