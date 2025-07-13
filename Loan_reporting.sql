@@ -101,3 +101,90 @@ FROM
 GROUP BY
     loan_status;
 
+-- for updating all the views (it works also on TSQL) 
+
+/*CREATE PROCEDURE AlterLoanViews
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @ViewName NVARCHAR(100);
+    DECLARE @SQL NVARCHAR(MAX);
+
+    DECLARE cur CURSOR FOR
+        SELECT name
+        FROM sys.views
+        WHERE name IN (
+            'approval_rate',
+            'approval_by_risk',
+            'approval_by_education',
+            'avg_ratios_by_status'
+        );
+
+    OPEN cur;
+    FETCH NEXT FROM cur INTO @ViewName;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        SET @SQL = 
+        CASE @ViewName
+            WHEN 'approval_rate' THEN
+                N'
+                ALTER VIEW approval_rate AS
+                SELECT
+                    COUNT(*) AS total_demandes,
+                    SUM(CASE WHEN LOWER(TRIM(loan_status)) = ''approved'' THEN 1 ELSE 0 END) AS demandes_approvees,
+                    ROUND(
+                        SUM(CASE WHEN LOWER(TRIM(loan_status)) = ''approved'' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 
+                        2
+                    ) AS taux_approbation
+                FROM loan_applications_enriched;
+                '
+
+            WHEN 'approval_by_risk' THEN
+                N'
+                ALTER VIEW approval_by_risk AS
+                SELECT
+                    risk_category,
+                    COUNT(*) AS total,
+                    SUM(CASE WHEN LOWER(TRIM(loan_status)) = ''approved'' THEN 1 ELSE 0 END) AS approved,
+                    ROUND(SUM(CASE WHEN LOWER(TRIM(loan_status)) = ''approved'' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS taux_approbation
+                FROM loan_applications_enriched
+                GROUP BY risk_category;
+                '
+
+            WHEN 'approval_by_education' THEN
+                N'
+                ALTER VIEW approval_by_education AS
+                SELECT
+                    education,
+                    COUNT(*) AS total,
+                    SUM(loan_status_code) AS approved,
+                    ROUND(SUM(loan_status_code) * 100.0 / COUNT(*), 2) AS taux_approbation
+                FROM loan_applications_enriched
+                GROUP BY education;
+                '
+
+            WHEN 'avg_ratios_by_status' THEN
+                N'
+                ALTER VIEW avg_ratios_by_status AS
+                SELECT
+                    loan_status,
+                    ROUND(AVG(debt_to_income_ratio), 2) AS avg_debt_ratio,
+                    ROUND(AVG(asset_to_loan_ratio), 2) AS avg_asset_ratio,
+                    ROUND(AVG(total_assets_value), 2) AS avg_assets
+                FROM loan_applications_enriched
+                GROUP BY loan_status;
+                '
+        END;
+
+        -- Exécution de la commande ALTER VIEW
+        EXEC sp_executesql @SQL;
+
+        FETCH NEXT FROM cur INTO @ViewName;
+    END;
+
+    CLOSE cur;
+    DEALLOCATE cur;
+END;
+*/
