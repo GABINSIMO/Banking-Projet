@@ -15,3 +15,6 @@ V3 : automatisation
 - Data Processing : Pandas
 - Data storage and quering : My SQL Workbench
 - Visualisation : SQL, Tableau
+
+## Flux de données/Pipelines
+<img width="1536" height="1024" alt="Pipeline" src="https://github.com/user-attachments/assets/158a53af-156c-466c-8a91-2ff9ac2c7a76" />
